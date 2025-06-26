@@ -218,5 +218,3 @@ For help or issues, please open an issue in the GitHub repository.
 
 > Built with for secure, distributed, and resilient file storage.
 ```
-
----
