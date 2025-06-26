@@ -74,7 +74,7 @@ class DataServer:
             header_data = client_socket.recv(header_size).decode('utf-8')
             header = json.loads(header_data)
             
-            user_id = header.get('user_id')
+            user_id = header.get('user_id') 
             chunk_id = header.get('chunk_id')
             
             # Construct path to the chunk file
@@ -183,3 +183,4 @@ if __name__ == "__main__":
     server_id = int(sys.argv[1])
     server = DataServer(server_id)
     server.start()
+    

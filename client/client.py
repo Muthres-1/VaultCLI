@@ -230,6 +230,66 @@ def authenticate(user_id, password):
         print(f"Authentication failed: {response.get('message')}")
         return None
 
+# The register() and authenticate() functions currently do not use derive_key() — which you’ve defined separately for generating strong 
+# encryption keys using PBKDF2 (a secure method).
+
+# Using PBKDF2 via derive_key() is more secure than a plain SHA-256 hash, so yes, you should use it for password hashing during 
+# registration and authentication.
+
+# The following are updated which are using this derive key for also storing password 
+
+# def register(user_id, password):
+#     salt = secrets.token_hex(16)  # 16 bytes = 32 hex chars
+#     key = derive_key(password, salt)  # returns bytes
+#     password_hash = key.hex()  # store as hex string
+
+#     request = {
+#         'action': 'register',
+#         'user_id': user_id,
+#         'password_hash': password_hash,
+#         'salt': salt
+#     }
+
+#     response = send_request_to_metadata_server(request)
+#     if response.get('status') == 'success':
+#         print(f"User {user_id} registered successfully.")
+#         server_status = get_servers_status()
+#         for i in range(TOTAL_SERVERS):
+#             if server_status[i]:
+#                 upload_chunk(i, user_id, 'init', b'')
+#     else:
+#         print(f"Registration failed: {response.get('message')}")
+
+# def authenticate(user_id, password):
+#     # Step 1: Get salt from metadata server
+#     request = {'action': 'get_salt', 'user_id': user_id}
+#     response = send_request_to_metadata_server(request)
+
+#     if response.get('status') != 'success':
+#         print(f"Authentication failed: {response.get('message')}")
+#         return None
+
+#     salt = response.get('salt')
+
+#     # Step 2: Derive key and convert to hex hash
+#     key = derive_key(password, salt)
+#     password_hash = key.hex()
+
+#     # Step 3: Authenticate with the derived hash
+#     request = {
+#         'action': 'authenticate',
+#         'user_id': user_id,
+#         'password_hash': password_hash
+#     }
+
+#     response = send_request_to_metadata_server(request)
+
+#     if response.get('status') == 'success':
+#         return salt  # required for future key derivation
+#     else:
+#         print(f"Authentication failed: {response.get('message')}")
+#         return None
+
 
 
 def upload_file(file_path, user_id, password):  ## marking for changing
@@ -482,7 +542,6 @@ def download_file(filename, user_id, password):
             print(f"Error reconstructing file using Reed-Solomon: {e}")
             return
     
-    # Remove any padding bytes
     file_size = len(reconstructed_data)
     
     # Save the file
